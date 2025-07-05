@@ -97,11 +97,11 @@ THERMAL_ZONE="__THERMAL_ZONE__"
 LOG_FILE="/var/log/fan-control.log"
 
 # Temperature thresholds (in Celsius) - adjust these as needed
-TEMP_OFF=55      # Fan off below this temperature
-TEMP_LOW=70      # Low speed fan (stays low until 70°C)
-TEMP_MED=80      # Medium speed fan  
-TEMP_HIGH=90     # High speed fan
-TEMP_MAX=95      # Maximum speed fan
+TEMP_OFF=45      # Fan off below this temperature
+TEMP_LOW=55      # Low speed fan
+TEMP_MED=70      # Medium speed fan  
+TEMP_HIGH=80     # High speed fan
+TEMP_MAX=85      # Maximum speed fan
 
 # Fan control modes
 FAN_OFF=0        # Fan disabled
@@ -152,8 +152,7 @@ control_fan() {
     
     if [[ $temp -lt $TEMP_OFF ]]; then
         set_fan_mode $FAN_OFF "OFF (temp: ${temp}°C < ${TEMP_OFF}°C)"
-    elif [[ $temp -lt $(($TEMP_LOW + $hysteresis)) ]]; then
-        # Keep fan on low speed from 55°C to 70°C
+    elif [[ $temp -lt $(($TEMP_LOW + $hysteresis)) ]] && [[ $last_temp -lt $TEMP_LOW ]]; then
         set_fan_mode $FAN_MANUAL "LOW (temp: ${temp}°C)"
     elif [[ $temp -lt $(($TEMP_MED + $hysteresis)) ]] && [[ $last_temp -lt $TEMP_MED ]]; then
         set_fan_mode $FAN_MANUAL "MEDIUM (temp: ${temp}°C)"
@@ -244,10 +243,9 @@ fi
 print_header "Setup Complete!"
 echo ""
 echo "Your fan control is now configured with these thresholds:"
-echo "  • Fan OFF: Below 55°C"
-echo "  • Low speed: 55-70°C (stays on low speed in this range)"
-echo "  • Manual control: 70-95°C (prevents rapid cycling)"
-echo "  • Automatic control: Above 95°C (for safety)"
+echo "  • Fan OFF: Below 45°C"
+echo "  • Manual control: 45-85°C (prevents rapid cycling)"
+echo "  • Automatic control: Above 85°C (for safety)"
 echo ""
 echo "Useful commands:"
 echo "  • Check service status: systemctl status custom-fan-control.service"
